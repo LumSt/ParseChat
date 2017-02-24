@@ -22,6 +22,20 @@ class LoginViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        
+        // create a cancel action
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (action) in
+            // handle cancel response here. Doing nothing will dismiss the view.
+        }
+        // add the cancel action to the alertController
+        alertController.addAction(cancelAction)
+        
+        // create an OK action
+        let OKAction = UIAlertAction(title: "OK", style: .default) { (action) in
+            // handle response here.
+        }
+        // add the OK action to the alert controller
+        alertController.addAction(OKAction)
     }
 
     override func didReceiveMemoryWarning() {
@@ -31,22 +45,22 @@ class LoginViewController: UIViewController {
     
     @IBAction func signup(_ sender: Any) {
         
-        var user = PFUser()
+        let user = PFUser()
         user.username = usernameText.text
         user.password = passwordText.text
-       // user.email = "email@example.com"
-        // other fields can be set just like with PFObject
-        //user["phone"] = "415-392-0202"
+        
         
         user.signUpInBackground {
-            (succeeded: Bool, error: Error?) -> Void in
-            if let error = error {
-                let errorString = error.localizedDescription
-                print("error: \(errorString)")
-                // Show the errorString somewhere and let the user try again.
+            (succeeded: Bool, error: Error?) in
+            if succeeded {
+                self.performSegue(withIdentifier: "loginSegue", sender: nil)
             } else {
-                // Hooray! Let them use the app now.
+                self.present(self.alertController, animated: true) {
+                    self.alertController.title = "Error"
+                    self.alertController.message = "User name or password needed!"
+                }
             }
+            
         }
         
         
@@ -57,10 +71,14 @@ class LoginViewController: UIViewController {
         PFUser.logInWithUsername(inBackground: usernameText.text! , password: passwordText.text!) {
             (user: PFUser?, error: Error?) -> Void in
             if user != nil {
-                
-                
+                self.performSegue(withIdentifier: "loginSegue", sender: nil)
                 print("ilogged in")
             } else {
+                
+                self.present(self.alertController, animated: true) {
+                    self.alertController.title = "Error"
+                    self.alertController.message = "Invalid user name or password!"
+                }
                 // The login failed. Check error to see why.
             }
         }
